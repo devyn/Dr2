@@ -1,7 +1,7 @@
 require 'dr2/types'
 
 class Dr2::Types::Null < Dr2::Types::RW
-  def self.read_dr2(io)
+  def self.from_dr2(io)
     io.read(1)
     return nil
   end
