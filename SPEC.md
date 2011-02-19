@@ -7,8 +7,11 @@ for the protocol:
 
 Dr2's data format is very bEncode (from BitTorrent)-like.
 
-Any characters not recognized can  be ignored. Breaking things up with
-spaces and newlines for readability is perfectly okay this way.
+These characters should be ignored if not expected:
+
+    0x09    CHARACTER TABULATION
+    0x0A    LINE FEED (LF)
+    0x20    SPACE
 
 `.` closes a structure, similar to `e` in bEncode.
 
@@ -57,16 +60,47 @@ The length  in hexadecimal `[0-9A-Fa-f]`,  followed by a  colon (`:`),
 followed by the content of the string. Example:
 
     1b:hello world, this is a test
+    => "hello world, this is a test"
+
+### Meta
+
+`a`, followed by a dictionary of information, with keys, ending with `.`
+
+#### Server-to-client
+
+    key             description
+    ---------------------------------------------------------------------------------
+    3:ext           A list of the server's supported extensions.
+
+#### Client-to-server
+
+    key             description
+    ---------------------------------------------------------------------------------
+    3:ext           A list of the client's supported extensions.
+    a:session-id    Unique 128-bit integer, identifies the current session.
+    4:mode          Currently, 6:normal is the only value.
+    7:version       Version of the specification that the client conforms to.
+
+#### Example
+
+    c :: a a:session-id i3759da4ea75133a00bb9c098b667e013. 4:mode 6:normal .
+
+### Error
+
+`e`, then error id (string), then additional information (arb.)
+
+    e 9:NameError d 7:message 24:undefined local variable .
+    => Error{ id: "NameError", info: {message: "undefined local variable"} }
 
 ### Messages
-
-    m i10000. i0. 8:math/add i2. i2. .
-    => Message{ id: 65536, to: 0, node: "math/add", args: [2, 2] }
 
 List syntax,  first element is message id  (arbitrary object, uniquely
 identifies  the  response)  first   element  is  treated  as  receiver
 (arbitrary object, root is `n`), second is node name (string), and the
 rest are the arguments.
+
+    m i10000. i0. 8:math/add i2. i2. .
+    => Message{ id: 65536, to: 0, node: "math/add", args: [2, 2] }
 
 ## Response
 
@@ -104,10 +138,11 @@ unique identifiers. The client may send two messages, and get the last
 sent message's response  before the first one, if  the first one takes
 longer and they run in parallel on the server.
 
-    m i1. i0. 9:factorial i10000. .      # Run 65536!.. this will take a while.
-    m i2. i0. 8:math/add  i2. i2. .      # Run 2 + 2.
-    r i2. i4.                            # Get response of 2 + 2, = 4.
-    r i1. iff23c771a4224f3ea955f44       # Get response of 65536!
-           abb627cafecd3822f290c6e
-	   f93cd162c00580000000000
-	   00000.
+    s :: 
+    c :: m i1. i0. 9:factorial i10000. .      # Run 65536!.. this will take a while.
+    c :: m i2. i0. 8:math/add  i2. i2. .      # Run 2 + 2.
+    s :: r i2. i4.                            # Get response of 2 + 2, = 4.
+    s :: r i1. iff23c771a4224f3ea955f44       # Get response of 65536!
+               abb627cafecd3822f290c6e
+	       f93cd162c00580000000000
+	       00000.
