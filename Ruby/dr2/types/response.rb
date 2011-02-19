@@ -14,7 +14,7 @@ class Dr2::Types::Response < Dr2::Types::RW
   end
 
   def self.can_write_dr2?(obj)
-    obj.is_a? Dr2::Data::Message
+    obj.is_a? Dr2::Data::Response
   end
 
   def write_dr2(io)
