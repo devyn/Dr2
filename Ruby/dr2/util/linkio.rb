@@ -10,10 +10,10 @@ class LinkIO
     if len.nil?
       ([@cur] + @ios).map{|i|i.read}.join
     else
-      a = @cur.read(len)
+      a = @cur.read(len) || ''
       if !@ios.empty? and a.length < len
         shift_io!
-        (a||'') + read(len - a.length)
+        a + read(len - a.length)
       else
         return a
       end
@@ -21,10 +21,10 @@ class LinkIO
   end
 
   def gets(sep=nil)
-    a = @cur.gets(sep)
+    a = @cur.gets(sep) || ''
     if !@ios.empty? and !(a =~ /#{Regexp.escape(sep||$/)}$/)
       shift_io!
-      (a||'') + gets(sep)
+      a + gets(sep)
     else
       return a
     end

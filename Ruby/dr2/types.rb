@@ -9,6 +9,28 @@ end
 
 module Dr2
   module Types
+    class ParseException < Exception
+    end
+    class EOFException < ParseException
+      def initialize
+      end
+
+      def to_s
+        "reached EOF prematurely"
+      end
+    end
+    class NoMatchException < ParseException
+      attr_reader :unexpected
+
+      def initialize(u)
+        @unexpected = u
+      end
+
+      def to_s
+        return "no match - unexpected #@unexpected"
+      end
+    end
+
     WRITERS = []
     def self.writer(o)
       w = WRITERS.find { |w| w.can_write_dr2?(o) }
@@ -33,11 +55,18 @@ module Dr2
       end
 
       alias to_s to_dr2
+
+      private
+
+      def parse_fail(s)
+        raise Dr2::Types::ParseException, s
+      end
     end
 
     READERS = []
     def self.read(io, type=nil, &blk)
       while (b = io.read(1)) =~ /^[ \t\n]$/; end
+      raise Dr2::Types::EOFException if io.eof?
       if type
         rs = [type]
       else
@@ -50,7 +79,7 @@ module Dr2
         rs.map! &:first
         b << io.read(1)
       end
-      raise "in reading Dr2: unexpected #{b.inspect}" if rs.empty?
+      raise Dr2::Types::NoMatchException, b if rs.empty?
       rs.first[0].from_dr2(LinkIO.new(StringIO.new(b), io), &blk)
     end
   end
