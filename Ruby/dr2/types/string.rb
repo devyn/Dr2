@@ -8,6 +8,7 @@ class Dr2::Types::String < Dr2::Types::RW
   end
 
   def self.from_dr2(io)
+    io.read(1) # 's'
     len = io.gets(":").chomp(":").to_i(16)
     if block_given?
       # Buffered mode. Useful for writing to a file. Use like:
@@ -38,7 +39,7 @@ class Dr2::Types::String < Dr2::Types::RW
   end
 
   def self.might_read_dr2?(part)
-    !(part =~ /^[0-9A-Fa-f]+(\:(.+)?)?/).nil?
+    !(part =~ /^s([0-9A-Fa-f](\:.*)?)?/).nil?
   end
 
   def self.can_write_dr2?(obj)
@@ -46,6 +47,6 @@ class Dr2::Types::String < Dr2::Types::RW
   end
 
   def write_dr2(io)
-    io << @o.length.to_s(16) << ":" << @o
+    io << "s" << @o.length.to_s(16) << ":" << @o
   end
 end

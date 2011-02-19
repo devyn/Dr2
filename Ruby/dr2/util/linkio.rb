@@ -13,7 +13,7 @@ class LinkIO
       a = @cur.read(len)
       if !@ios.empty? and a.length < len
         shift_io!
-        a + read(len - a.length)
+        (a||'') + read(len - a.length)
       else
         return a
       end
@@ -24,7 +24,7 @@ class LinkIO
     a = @cur.gets(sep)
     if !@ios.empty? and !(a =~ /#{Regexp.escape(sep||$/)}$/)
       shift_io!
-      a + gets(sep)
+      (a||'') + gets(sep)
     else
       return a
     end

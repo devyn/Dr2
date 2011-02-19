@@ -44,13 +44,14 @@ module Dr2
         rs = READERS.dup
       end
       # resolving potential ambiguities
-      # - there shouldn't be any, but this is open to
-      #   extensions, so, just in case...
-      while (rs.reject! { |r| !r.might_read_dr2? b }).size > 1
+      while (rs.map! { |r| [r, r.might_read_dr2?(b)]
+             }.reject! { |rp| rp[1] == false };
+             rs.size > 1 || rs.map { |rp| rp[1] }.include?(:maybe))
+        rs.map! &:first
         b << io.read(1)
       end
       raise "in reading Dr2: unexpected #{b.inspect}" if rs.empty?
-      rs.first.from_dr2(LinkIO.new(StringIO.new(b), io), &blk)
+      rs.first[0].from_dr2(LinkIO.new(StringIO.new(b), io), &blk)
     end
   end
 end
