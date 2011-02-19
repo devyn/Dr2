@@ -66,7 +66,7 @@ module Dr2
     READERS = []
     def self.read(io, types=nil, &blk)
       while (b = io.read(1)) =~ /^[ \t\n]$/; end
-      raise Dr2::Types::EOFException if io.eof?
+      raise Dr2::Types::EOFException if io.eof? and b.nil?
       if types
         rs = types.dup
       else

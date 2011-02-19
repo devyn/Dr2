@@ -9,7 +9,7 @@ class Dr2::Types::Response < Dr2::Types::RW
     return Dr2::Data::Response.new(id, value)
   end
 
-  def self.might_read_dr2(part)
+  def self.might_read_dr2?(part)
     !(part =~ /^r/).nil?
   end
 

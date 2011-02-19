@@ -38,6 +38,10 @@ class LinkIO
     (@pas + [@cur] + @ios).inject(0) {|o,x| o + x.length }
   end
 
+  def eof?
+    @ios.empty? and @cur.eof?
+  end
+
   private
 
   def shift_io!
