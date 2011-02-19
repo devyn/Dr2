@@ -6,7 +6,7 @@ class Dr2::Types::List < Dr2::Types::RW
     l = []
     loop do
       begin
-        l.unshift Dr2::Types.read(io)
+        l.unshift Dr2.read(io)
       rescue Dr2::Types::NoMatchException
         if $!.unexpected =~ /^\./
           return l
@@ -28,7 +28,7 @@ class Dr2::Types::List < Dr2::Types::RW
   def write_dr2(io)
     io << "l"
     @o.reverse.each do |x|
-      Dr2::Types.writer(x).write_dr2(io)
+      Dr2.write(io, x)
     end
     io << "."
   end

@@ -5,14 +5,14 @@ require 'dr2/data/message'
 class Dr2::Types::Message < Dr2::Types::RW
   def self.from_dr2(io)
     io.read(1) # 'm'
-    id   = Dr2::Types.read(io)
-    to   = Dr2::Types.read(io)
-    node = Dr2::Types.read(io, [Dr2::Types::String])
+    id   = Dr2.read(io)
+    to   = Dr2.read(io)
+    node = Dr2.read(io, [Dr2::Types::String])
 
     args = []
     loop do
       begin
-        args.unshift Dr2::Types.read(io)
+        args.unshift Dr2.read(io)
       rescue Dr2::Types::NoMatchException
         if $!.unexpected =~ /^\./
           break
@@ -34,14 +34,13 @@ class Dr2::Types::Message < Dr2::Types::RW
   end
 
   def write_dr2(io)
-    _write = proc { |x| Dr2::Types.writer(x).write_dr2(io) }
-
     io << "m"
-    _write[@o.id]
-    _write[@o.to]
-    _write[@o.node]
+    Dr2.write(io, @o.id)
+    Dr2.write(io, @o.to)
+    Dr2.write(io, @o.node)
+
     @o.args.reverse.each do |x|
-      _write[x]
+      Dr2.write(io, x)
     end
     io << "."
   end

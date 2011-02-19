@@ -19,7 +19,7 @@ class Dr2::Types::Response < Dr2::Types::RW
 
   def write_dr2(io)
     io << "r"
-    Dr2::Types.writer(@o.id).write(io)
-    Dr2::Types.writer(@o.value).write(io)
+    Dr2.write(io, @o.id)
+    Dr2.write(io, @o.value)
   end
 end

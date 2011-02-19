@@ -7,9 +7,9 @@ class Dr2::Types::Dictionary < Dr2::Types::RW
     loop do
       c = true
       begin
-        a = Dr2::Types.read(io)
+        a = Dr2.read(io)
         c = false
-        b = Dr2::Types.read(io)
+        b = Dr2.read(io)
         c = true
         d[a] = b
       rescue Dr2::Types::NoMatchException
@@ -37,8 +37,8 @@ class Dr2::Types::Dictionary < Dr2::Types::RW
   def write_dr2(io)
     io << "d"
     @o.each do |k,v|
-      Dr2::Types.writer(k).write_dr2(io)
-      Dr2::Types.writer(v).write_dr2(io)
+      Dr2.write(io, k)
+      Dr2.write(io, v)
     end
     io << "."
   end

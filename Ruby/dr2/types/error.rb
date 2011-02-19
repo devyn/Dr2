@@ -5,8 +5,8 @@ require 'dr2/data/error'
 class Dr2::Types::Error < Dr2::Types::RW
   def self.from_dr2(io)
     io.read(1) # 'e'
-    id = Dr2::Types.read(io, [Dr2::Types::String]) # error id
-    inf = Dr2::Types.read(io)
+    id  = Dr2.read(io, [Dr2::Types::String]) # error id
+    inf = Dr2.read(io)
     return Dr2::Data::Error.new(id, inf)
   end
 
@@ -20,13 +20,12 @@ class Dr2::Types::Error < Dr2::Types::RW
 
   def write_dr2(io)
     io << "e"
-    _write = proc { |ob| Dr2::Types.writer(ob).write_dr2(io) }
     if @o.is_a? Dr2::Data::Error
-      _write[@o.id]
-      _write[@o.inf]
+      Dr2.write(io, @o.id)
+      Dr2.write(io, @o.inf)
     else
-      _write[@o.class.name]
-      _write[@o.message]
+      Dr2.write(io, @o.class.name)
+      Dr2.write(io, @o.message)
     end
   end
 end

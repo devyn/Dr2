@@ -83,4 +83,22 @@ module Dr2
       rs.first[0].from_dr2(LinkIO.new(StringIO.new(b), io), &blk)
     end
   end
+
+  # shortcuts
+
+  def self.read(*args, &blk)
+    Dr2::Types.read(*args, &blk)
+  end
+
+  def self.write(io, obj)
+    Dr2::Types.writer(obj).write_dr2(io)
+  end
+
+  def self.load(str)
+    Dr2::Types.read(StringIO.new(str))
+  end
+
+  def self.dump(obj)
+    Dr2::Types.writer(obj).to_s
+  end
 end
