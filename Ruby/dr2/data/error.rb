@@ -1,6 +1,8 @@
 module Dr2
   module Data
     class Error < Exception
+      attr_accessor :id, :inf
+
       def initialize(id, inf)
         @id  = id
         @inf = inf
