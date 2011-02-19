@@ -95,9 +95,9 @@ colon (`:`), followed by the content of the string. Example:
 ### Messages
 
 List syntax,  first element is message id  (arbitrary object, uniquely
-identifies  the  response)  first   element  is  treated  as  receiver
-(arbitrary object, root is `n`), second is node name (string), and the
-rest are the arguments.
+identifies  the  response)  second  element  is  treated  as  receiver
+(arbitrary object, root is `n`), third is node name (string), and the
+rest are the arguments (rev. order like lists).
 
     m i10000. i0. s8:math/add i2. i2. .
     => Message{ id: 65536, to: 0, node: "math/add", args: [2, 2] }
