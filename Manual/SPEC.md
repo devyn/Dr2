@@ -84,6 +84,26 @@ return value.
     r i10000e i4.
     => Response{ id: 65536, value: 4 }
 
+### Pointer
+
+Sometimes it is desirable to send  an object which must be accessed on
+the server. The  pointer type `p` allows you to send  a pointer to the
+client, which  can then  give you  that pointer as  the receiver  of a
+message and  thereby call  methods on that  object. The syntax  is `p`
+followed by an arbitrary identifier object.
+
+    p iFF.
+    => Pointer 255
+
+One could then access this pointer by sending messages to it:
+
+    m i0. iFF. s7:inspect .
+    => Message{ id: 0, to: 255, node: "inspect", args: [] }
+    => pseudo : get(0xFF).inspect
+
+Note the  `iFF.` as the second  message parameter. This  object is the
+same as the one the pointer was wrapping in the earlier example.
+
 ## Protocol
 
 Client  sends messages while  server sends  responses.  Both  may send
@@ -141,22 +161,3 @@ with a different type.
 
     o s5:class s8:MyObject s4:num1 i2a. s4:num2 i539. .
     => Object{ class: "MyObject", num1: 42, num2: 1337 }
-
-### Pointer
-
-- *This is going in next, as it is right now.*
-
-Sometimes it is desirable to send  an object which must be accessed on
-the server. The  pointer type `p` allows you to send  a pointer to the
-client, which  can then  give you  that pointer as  the receiver  of a
-message and  thereby call  methods on that  object. The syntax  is `p`
-followed by an arbitrary identifier object.
-
-    p iFF.
-    => Pointer 255
-
-One could then access this pointer by sending messages to it:
-
-    m i0. iFF. s7:inspect .
-    => Message{ id: 0, to: 255, node: "inspect", args: [] }
-    => pseudo : get(0xFF).inspect

@@ -80,6 +80,21 @@
 <pre><code>r i10000e i4.
 =&gt; Response{ id: 65536, value: 4 }</code></pre>
 
+<h3 id='pointer'>Pointer</h3>
+
+<p>Sometimes it is desirable to send an object which must be accessed on the server. The pointer type <code>p</code> allows you to send a pointer to the client, which can then give you that pointer as the receiver of a message and thereby call methods on that object. The syntax is <code>p</code> followed by an arbitrary identifier object.</p>
+
+<pre><code>p iFF.
+=&gt; Pointer 255</code></pre>
+
+<p>One could then access this pointer by sending messages to it:</p>
+
+<pre><code>m i0. iFF. s7:inspect .
+=&gt; Message{ id: 0, to: 255, node: &quot;inspect&quot;, args: [] }
+=&gt; pseudo : get(0xFF).inspect</code></pre>
+
+<p>Note the <code>iFF.</code> as the second message parameter. This object is the same as the one the pointer was wrapping in the earlier example.</p>
+
 <h2 id='protocol'>Protocol</h2>
 
 <p>Client sends messages while server sends responses. Both may send toplevel errors, which may be handled depending on the service. Only one response per message sent. Message and response are linked by an identifier, which is an arbitrary object chosen by the client.</p>
@@ -127,21 +142,4 @@
 
 <pre><code>o s5:class s8:MyObject s4:num1 i2a. s4:num2 i539. .
 =&gt; Object{ class: &quot;MyObject&quot;, num1: 42, num2: 1337 }</code></pre>
-
-<h3 id='pointer'>Pointer</h3>
-
-<ul>
-<li><em>This is going in next, as it is right now.</em></li>
-</ul>
-
-<p>Sometimes it is desirable to send an object which must be accessed on the server. The pointer type <code>p</code> allows you to send a pointer to the client, which can then give you that pointer as the receiver of a message and thereby call methods on that object. The syntax is <code>p</code> followed by an arbitrary identifier object.</p>
-
-<pre><code>p iFF.
-=&gt; Pointer 255</code></pre>
-
-<p>One could then access this pointer by sending messages to it:</p>
-
-<pre><code>m i0. iFF. s7:inspect .
-=&gt; Message{ id: 0, to: 255, node: &quot;inspect&quot;, args: [] }
-=&gt; pseudo : get(0xFF).inspect</code></pre>
 </body></html>
