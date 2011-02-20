@@ -30,6 +30,8 @@ module Dr2
         return "no match - unexpected #@unexpected"
       end
     end
+    class QuitException < Exception
+    end
 
     WRITERS = []
     def self.writer(o)
@@ -68,6 +70,7 @@ module Dr2
       while (b = io.read(1)) =~ /^[ \t\n]$/; end
       raise Dr2::Types::EOFException if b.nil? and (io.eof? rescue io.closed?)
       raise Dr2::Types::NoMatchException, b if b == "."
+      raise Dr2::Types::QuitException if b == "q"
       if types
         rs = types.dup
       else
