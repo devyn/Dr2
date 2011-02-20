@@ -76,7 +76,7 @@ rest are the arguments (rev. order like lists). Ends with '`.`'.
     m i10000. n s8:math/add i2. i2. .
     => Message{ id: 65536, to: nil, node: "math/add", args: [2, 2] }
 
-## Response
+### Response
 
 `r`, followed by the id  corresponding to the message, followed by the
 return value.
