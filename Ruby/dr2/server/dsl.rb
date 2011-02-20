@@ -10,10 +10,17 @@ module Dr2
 
         def initialize
           @nodes = {}
+          @ns    = []
         end
 
         def node(name, &blk)
-          @nodes[name.to_s] = blk
+          @nodes[(@ns+[name]).join("/")] = blk
+        end
+
+        def namespace(name)
+          @ns.push name
+          yield
+          @ns.pop
         end
       end
 
