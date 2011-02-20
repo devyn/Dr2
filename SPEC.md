@@ -11,6 +11,7 @@ These characters should be ignored if not expected:
 
     0x09    CHARACTER TABULATION
     0x0A    LINE FEED (LF)
+    0x0D    CARRIAGE RETURN (CR)
     0x20    SPACE
 
 `.` closes a structure, similar to `e` in bEncode.
