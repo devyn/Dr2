@@ -89,7 +89,7 @@ module Dr2
                 rescue Dr2::Types::EOFException
                   break
                 rescue Exception
-                  Dr2.write(c, $!)
+                  l.synchronize { Dr2.write(c, $!) }
                 end
               end
             ensure
