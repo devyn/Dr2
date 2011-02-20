@@ -1,3 +1,5 @@
+css: man.css
+
 # Specification for Dr2
 
 Dr2 (Devyn's RPC 2) is language independent. Here is the specification
@@ -18,21 +20,14 @@ These characters should be ignored if not expected:
 
 ### Integer
 
-`i` followed by hexadecimal `[0-9A-Fa-f]` number, ending with `.`.
+`i` followed by hexadecimal `[0-9A-Fa-f]` number, ending with '`.`'.
 
     i33.
     => 51
 
-### Double-precision floating point
-
-[IEEE 754 FP64](http://en.wikipedia.org/wiki/Double_precision_floating-point_format),
-beginning with `f`.
-
-Sign bit (bit 63), exponent (bit 52), fraction (bit 0).
-
 ### List
 
-`l`  followed  by  items  one  after another,  ending  with  `.`.  Not
+`l`  followed by  items one  after  another, ending  with '`.`'.   Not
 necessarily all of the same type.
 
     l 3:foo i2. .
@@ -43,7 +38,7 @@ necessarily all of the same type.
 `d` followed  by items,  like a  list, but in  key, value,  key, value
 order.   The dictionary  is not  necessarily in  any  particular order
 (unordered map).  The keys and  values may be  of any type.  Ends with
-`e`.
+'`.`'.
 
     d s3:foo i2. s5:hello s5:world iFF. l i1. i2. i3. . .
     => {hello: "world", foo: 2, 255: [1, 2, 3]}
@@ -63,42 +58,20 @@ colon (`:`), followed by the content of the string. Example:
     s1b:hello world, this is a test
     => "hello world, this is a test"
 
-### Meta
-
-`a`, followed by a dictionary of information, with keys, ending with `.`
-
-#### Server-to-client
-
-    key              description
-    ---------------------------------------------------------------------------------
-    s3:ext           A list of the server's supported extensions.
-
-#### Client-to-server
-
-    key              description
-    ---------------------------------------------------------------------------------
-    s3:ext           A list of the client's supported extensions.
-    sa:session-id    Unique 128-bit integer, identifies the current session.
-    s4:mode          Currently, 6:normal is the only value.
-    s7:version       Version of the specification that the client conforms to.
-
-#### Example
-
-    c :: a a:session-id i3759da4ea75133a00bb9c098b667e013. 4:mode 6:normal .
-
 ### Error
 
 `e`, then error id (string), then additional information (arb.)
 
     e s9:NameError d s7:message s24:undefined local variable .
-    => Error{ id: "NameError", info: {message: "undefined local variable"} }
+    => Error{ id: "NameError",
+              info: {message: "undefined local variable"} }
 
 ### Messages
 
 List syntax,  first element is message id  (arbitrary object, uniquely
 identifies  the  response)  second  element  is  treated  as  receiver
 (arbitrary object, root is `n`), third is node name (string), and the
-rest are the arguments (rev. order like lists).
+rest are the arguments (rev. order like lists). Ends with '`.`'.
 
     m i10000. n s8:math/add i2. i2. .
     => Message{ id: 65536, to: nil, node: "math/add", args: [2, 2] }
@@ -111,7 +84,55 @@ return value.
     r i10000e i4.
     => Response{ id: 65536, value: 4 }
 
+## Protocol
+
+Client  sends messages while  server sends  responses.  Both  may send
+toplevel errors, which  may be handled depending on  the service. Only
+one response per  message sent. Message and response  are linked by an
+identifier, which is an arbitrary object chosen by the client.
+
+Server hosts a  collection of receivers, each with  sets of nodes. One
+such receiver  is mandatory, the  root receiver `n`  (null). Receivers
+may be identified by any unique object.
+
+If  a receiver  cannot  be  located, respond  with  toplevel error  id
+`ReceiverNotFound`. If a node cannot be located, respond with toplevel
+error id `NodeNotFound`.
+
+The node namespace separator shall be '`/`', for example, in `math/add`.
+
+The server is not required to respond to messages in the same order it
+received them. The  identifiers are used instead. This  allows for the
+possibility  of parallel  operations  on the  server-side. The  client
+should   also   probably    provide   some   way   of   asynchronously
+sending/receiving.
+
+## The Future
+
+### Double-precision floating point
+
+- *Probably going to make it in, just not sure about the specifics.*
+
+[IEEE 754 FP64](http://en.wikipedia.org/wiki/Double_precision_floating-point_format),
+beginning with `f`.
+
+Sign bit (bit 63), exponent (bit 52), fraction (bit 0).
+
+### Meta
+
+- *This could be useful later.*
+
+`a`, followed by a dictionary of information, with keys, ending with '`.`'.
+
+#### Example
+
+    <client> a a:session-id i3759da4ea75133a00bb9c098b667e013.
+             4:mode 6:normal .
+
 ### Objects
+
+- *Not sure about this at all. Maybe it should be more like a structure?*
+  - *That is, like* `o s6:FooBar s3:foo s3:bar` *where the client must already know about FooBar's format and parses accordingly.*
 
 Same syntax as  a dictionary, with `o` instead  of `d`. They're marked
 as  objects,  so  clients  may  treat  them  differently.  Any  client
@@ -123,6 +144,8 @@ with a different type.
 
 ### Pointer
 
+- *This is going in next, as it is right now.*
+
 Sometimes it is desirable to send  an object which must be accessed on
 the server. The  pointer type `p` allows you to send  a pointer to the
 client, which  can then  give you  that pointer as  the receiver  of a
@@ -132,18 +155,8 @@ followed by an arbitrary identifier object.
     p iFF.
     => Pointer 255
 
-## Protocol Examples
+One could then access this pointer by sending messages to it:
 
-Dr2 is  designed to  be async compatible,  which is why  messages have
-unique identifiers. The client may send two messages, and get the last
-sent message's response  before the first one, if  the first one takes
-longer and they run in parallel on the server.
-
-    s :: 
-    c :: m i1. i0. s9:factorial i10000. .      # Run 65536!.. this will take a while.
-    c :: m i2. i0. s8:math/add  i2. i2. .      # Run 2 + 2.
-    s :: r i2. i4.                             # Get response of 2 + 2, = 4.
-    s :: r i1. iff23c771a4224f3ea955f44        # Get response of 65536!
-               abb627cafecd3822f290c6e
-	       f93cd162c00580000000000
-	       00000.
+    m i0. iFF. s7:inspect .
+    => Message{ id: 0, to: 255, node: "inspect", args: [] }
+    => pseudo : get(0xFF).inspect
