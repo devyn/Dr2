@@ -48,7 +48,7 @@ module Dr2
             warn x.to_s
           else
             if @cbks.include? x.id
-              Thread.start(@cbks[x.id]) { |c| c[x.value] }
+              Thread.start(@cbks[x.id]) { |c| c[process(x.value)] }
               @cbks.delete x.id
             else
               @lock.synchronize {
@@ -59,6 +59,22 @@ module Dr2
             end
           end
         end
+      end
+    end
+
+    def process(obj)
+      # Look for pointers, and put them on our side.
+      case obj
+      when Array
+        obj.map! { |x| process(x) }
+      when Hash
+        Hash[obj.map { |kv| kv.map { |x| process(x) } }]
+      when Dr2::Data::Error
+        Dr2::Data::Error.new(process(obj.id), process(obj.inf))
+      when Dr2::Data::Pointer
+        obj._client = self; obj
+      else
+        obj
       end
     end
   end

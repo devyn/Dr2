@@ -8,6 +8,23 @@ module Dr2
       def initialize(bind, port)
         @serv = TCPServer.new(bind, port)
         @threads = []
+        @ptrs = []
+      end
+
+      def register(ptr)
+        @ptrs.unshift ptr
+      end
+
+      def unregister(ptr)
+        @ptrs.delete ptr
+      end
+
+      def pointer_with_id(id)
+        @ptrs.find { |ptr| ptr._id == id }
+      end
+
+      def pointer_with_proxy(obj)
+        @ptrs.find { |ptr| ptr._proxy == obj }
       end
 
       # Sync mode will only ever run operations synchronously, between

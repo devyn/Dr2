@@ -95,6 +95,7 @@ module Dr2
   end
 
   def self.write(io, obj)
+#   puts "-------------------- #{obj.inspect}", caller
     Dr2::Types.writer(obj).write_dr2(io)
   end
 
