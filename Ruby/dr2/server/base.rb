@@ -72,19 +72,24 @@ module Dr2
           Thread.start do
             begin
               @threads << Thread.current
+              l = Mutex.new
               loop do
                 begin
-                  x = Dr2::Types.read(c, [Dr2::Types::Message,
-                                          Dr2::Types::Error])
+                  x = Dr2.read(c, [Dr2::Types::Message,
+                                   Dr2::Types::Error])
                   Thread.start {
-                    @threads << Thread.current
-                    receive x, c
-                    @threads.delete Thread.current
+                    begin
+                      @threads << Thread.current
+                      receive x, c, l
+                    ensure
+                      l.unlock rescue nil if l.locked?
+                      @threads.delete Thread.current
+                    end
                   }
                 rescue Dr2::Types::EOFException
                   break
                 rescue Exception
-                  Dr2::Types.writer($!).write_dr2(c)
+                  Dr2.write(c, $!)
                 end
               end
             ensure
@@ -95,7 +100,7 @@ module Dr2
         end
       end
 
-      def receive(msg_or_error, io)
+      def receive(msg_or_error, io, lock=nil)
         raise "not implemented yet"
       end
 
