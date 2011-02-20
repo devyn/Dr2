@@ -58,7 +58,7 @@ module Dr2
 
       private
 
-      def parse_fail(s)
+      def self.parse_fail(s)
         raise Dr2::Types::ParseException, s
       end
     end

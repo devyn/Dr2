@@ -36,13 +36,14 @@ module Dr2
                 Dr2.write(io, Dr2::Data::Response.new(m.id, r))
                 l.unlock if l
               else
-                raise Dr2::Data::Error, "NodeNotFound", "node not found on #root"
+                raise Dr2::Data::Error.new("NodeNotFound", "node '#{m.node}' not found on #root")
               end
             else
-              raise Dr2::Data::Error, "ReceiverNotFound", "receiver ##{m.to} not found"
+              raise Dr2::Data::Error.new("ReceiverNotFound", "receiver ##{m.to} not found")
             end
           rescue Exception
             l.lock if l
+#           warn "#{$!.class.name}: #{$!.message}\n#{$!.backtrace.join("\n").gsub(/^/, '    ')}"
             Dr2.write(io, Dr2::Data::Response.new(m.id, $!))
             l.unlock if l
           end
