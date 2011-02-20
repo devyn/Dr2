@@ -67,7 +67,7 @@ module Dr2
 
     READERS = []
     def self.read(io, types=nil, &blk)
-      while (b = io.read(1)) =~ /^[ \t\n]$/; end
+      while (b = io.read(1)) =~ /^[ \t\r\n]$/; end
       raise Dr2::Types::EOFException if b.nil? and (io.eof? rescue io.closed?)
       raise Dr2::Types::NoMatchException, b if b == "."
       raise Dr2::Types::QuitException if b == "q"
